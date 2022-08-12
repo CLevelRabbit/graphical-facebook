@@ -1,0 +1,40 @@
+diff --git a/facebook_scraper/facebook_scraper.py b/facebook_scraper/facebook_scraper.py
+index c8779fb..8e655af 100755
+--- a/facebook_scraper/facebook_scraper.py
++++ b/facebook_scraper/facebook_scraper.py
+@@ -1034,6 +1034,9 @@ class FacebookScraper:
+                     try:
+                         post = extract_post_fn(post_element, options=options, request_fn=self.get)
+ 
++                        # Rabbit: Add "page_url" to object so it can be saved
++                        post["page_url"] = post_element.page_url
++
+                         if remove_source:
+                             post.pop("source", None)
+ 
+@@ -1097,6 +1100,10 @@ class FacebookScraper:
+                 logger.debug("Extracting posts from page %s", i)
+                 for post_element in page:
+                     post = extract_post_fn(post_element, options=options, request_fn=self.get)
++
++                    # Rabbit: Add "page_url" to object so it can be saved
++                    post["page_url"] = post_element.page_url
++
+                     if remove_source:
+                         post.pop('source', None)
+                     yield post
+diff --git a/facebook_scraper/page_iterators.py b/facebook_scraper/page_iterators.py
+index 5989ef8..85aa308 100644
+--- a/facebook_scraper/page_iterators.py
++++ b/facebook_scraper/page_iterators.py
+@@ -104,6 +104,10 @@ def generic_iter_pages(
+ 
+         page = parser.get_page()
+ 
++        # Rabbit: Adding "page_url" to each element so it can be saved in the DB
++        for p in page:
++            p.page_url = next_url
++
+         # TODO: If page is actually an iterable calling len(page) might consume it
+         logger.debug("Got %s raw posts from page", len(page))
+         yield page
