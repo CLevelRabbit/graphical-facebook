@@ -12,3 +12,4 @@ python3 main.py <page_name>
 
 note that posts are added to the csv file if it exists, so make sure to avoid duplicates.
 
+To create the graphics open the jupyter notebook file and exceute all the cells.
