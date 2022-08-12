@@ -7,7 +7,7 @@ If requested, a guide will be added in the future.
 
 To get new posts, put a facebook cookie file in the path "facebook.com_cookies.txt", and run:
 ```
-python3 main.py <page_name>
+python main.py <page_name>
 ```
 
 note that posts are added to the csv file if it exists, so make sure to avoid duplicates.
