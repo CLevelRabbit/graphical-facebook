@@ -4,7 +4,7 @@ import pandas as pd
 def get_clean_df(db_name):
     """ Get the df """
     df = pd.read_csv(db_name)
-    df['word_count'] = df.post_text.str.replace('\n', ' ').str.count(' ')
+    df['word_count'] = df.post_text.str.replace('\n', ' ').str.count(' ') + 1
     df['full_time'] = pd.to_datetime(df.time, infer_datetime_format=True)
     df['hour'] = df.full_time.dt.hour
     base_month_fmt = '{}-{:02d}-25 00:00:00'

@@ -29,14 +29,15 @@ REACTION_FIELDS = [
     ('sad', 0)
 ]
 
-IMAGES_POST_PATH = './images/{}'
+IMAGES_POST_PATH = '{}_images'
+IMAGE_PATH = '{}/{}'
 COOKIE_FILE = 'facebook.com_cookies.txt'
 PAGE_NAME = 'hapshuta'
 DB_PATH_FMT = '{}_posts.csv'
 
 
-def download_images(post):
-    img_dir = IMAGES_POST_PATH.format(post['post_id'])
+def download_images(post, images_path):
+    img_dir = os.path.join(images_path, post['post_id'])
     if not os.path.exists(img_dir):
         os.mkdir(img_dir)
     for i, img_link in enumerate(post['images']):
@@ -49,12 +50,17 @@ def download_images(post):
 
 
 def main():
+    is_group = True
     if len(sys.argv) == 2:
         page_name = sys.argv[1]
     else:
         page_name = PAGE_NAME
 
     db_path = DB_PATH_FMT.format(page_name)
+    images_path = IMAGES_POST_PATH.format(page_name)
+    if is_group:
+        db_path = 'group_' + db_path
+        images_path = 'group_' + images_path
 
     # Find out if first write or not
     if os.path.exists(db_path):
@@ -64,9 +70,18 @@ def main():
 
     # enable_logging()
 
+    if not os.path.exists(images_path):
+        os.mkdir(images_path)
     # You can set "start_url=<>" to the page url you wish to start from.
+    print(f'Writing to file {db_path}')
+    get_kwargs = {'page_limit': 200000000, 'extra_info': True}#, 'cookies': COOKIE_FILE}
+    get_kwargs['start_url'] = 'https://m.facebook.com/groups/823580191927059?bac=MTY2MDMzOTA5OToxMTU1MTcwNjMyMTAxMzQ1OjExNTUxNzA2MzIxMDEzNDUsMCwyODoyMDpLdz09&multi_permalinks'
+    if is_group:
+        get_kwargs['group'] = page_name
+    else:
+        get_kwargs['account'] = page_name
     for i, post in enumerate(
-            get_posts(page_name, page_limit=200000000, cookies=COOKIE_FILE, extra_info=True)):
+            get_posts(**get_kwargs)):
         post_dict = {key: post.get(key, default) for key, default in FIELDS}
         reactions = post.get('reactions', {})
         if not reactions:
@@ -79,7 +94,7 @@ def main():
         images_cnt = len(images)
         post_dict['images_cnt'] = images_cnt
         if images_cnt > 0:
-            download_images(post)
+            download_images(post, images_path)
 
         print('Saving post! %d' % i)
         print(post_dict)
